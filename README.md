@@ -3,7 +3,6 @@
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://github.com)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://github.com)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Bluesky](https://img.shields.io/badge/Bluesky-0085ff?logo=bluesky&logoColor=white)](https://bsky.app)
 
 # 🦋 Bluesky Followback Checker
 

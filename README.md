@@ -251,6 +251,7 @@ Developed by AQUINO, R. D. G.
 [![Lattes](https://github.com/aquinordg/custom_tools/blob/main/icons/icons8-plataforma-lattes-32.png)](http://lattes.cnpq.br/2373005809061037)
 [![ORCID](https://github.com/aquinordg/custom_tools/blob/main/icons/icons8-orcid-32.png)](https://orcid.org/0000-0002-8486-8354)
 [![Google Scholar](https://github.com/aquinordg/custom_tools/blob/main/icons/icons8-google-scholar-32.png)](https://scholar.google.com/citations?user=r5WsvKgAAAAJ&hl)
+[![Bluesky](https://github.com/aquinordg/custom_tools/blob/main/icons/icons8-bluesky-32.png)](https://bsky.app/profile/aquino.bsky.social)
 
 ---
 

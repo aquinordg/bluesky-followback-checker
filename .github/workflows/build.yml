@@ -1,16 +1,10 @@
-name: Build and Release Executable
+name: Build and Release Bluesky Followback Checker
 
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      create_release:
-        description: 'Create GitHub Release'
-        required: false
-        default: true
-        type: boolean
 
 jobs:
   build-windows:
@@ -31,15 +25,9 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
     
-    - name: Build executable with spec file
+    - name: Build executable
       run: |
-        pyinstaller --onefile --console --name "bluesky_followback" `
-          --hidden-import=atproto `
-          --hidden-import=getpass `
-          --hidden-import=webbrowser `
-          --hidden-import=time `
-          --hidden-import=datetime `
-          bluesky_followback.py
+        pyinstaller --onefile --console --name "bluesky_followback" --hidden-import=atproto bluesky_followback.py
     
     - name: Upload Windows executable
       uses: actions/upload-artifact@v4
@@ -47,25 +35,16 @@ jobs:
         name: bluesky-followback-windows
         path: dist/bluesky_followback.exe
     
-    - name: Create Windows ZIP package
-      run: |
-        mkdir bluesky-followback-windows
-        copy dist\bluesky_followback.exe bluesky-followback-windows\
-        copy run.bat bluesky-followback-windows\
-        copy README.md bluesky-followback-windows\
-        echo Bluesky Followback Checker > bluesky-followback-windows\INSTALL.txt
-        echo. >> bluesky-followback-windows\INSTALL.txt
-        echo No installation needed! Just double-click bluesky_followback.exe >> bluesky-followback-windows\INSTALL.txt
-        echo Or use run.bat for a nicer interface >> bluesky-followback-windows\INSTALL.txt
-        echo. >> bluesky-followback-windows\INSTALL.txt
-        echo IMPORTANT: Use an App Password from Bluesky Settings! >> bluesky-followback-windows\INSTALL.txt
-        powershell Compress-Archive -Path bluesky-followback-windows\* -DestinationPath bluesky-followback-windows.zip
-    
-    - name: Upload Windows ZIP package
-      uses: actions/upload-artifact@v4
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
       with:
-        name: bluesky-followback-windows-zip
-        path: bluesky-followback-windows.zip
+        files: dist/bluesky_followback.exe
+        draft: false
+        prerelease: false
+        body_path: RELEASE_NOTES.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-linux:
     runs-on: ubuntu-latest
@@ -87,40 +66,13 @@ jobs:
     
     - name: Build executable
       run: |
-        pyinstaller --onefile --console --name "bluesky_followback" \
-          --hidden-import=atproto \
-          --hidden-import=getpass \
-          --hidden-import=webbrowser \
-          --hidden-import=time \
-          --hidden-import=datetime \
-          bluesky_followback.py
+        pyinstaller --onefile --console --name "bluesky_followback" --hidden-import=atproto bluesky_followback.py
     
     - name: Upload Linux binary
       uses: actions/upload-artifact@v4
       with:
         name: bluesky-followback-linux
         path: dist/bluesky_followback
-    
-    - name: Create Linux package
-      run: |
-        mkdir bluesky-followback-linux
-        cp dist/bluesky_followback bluesky-followback-linux/
-        cp run.sh bluesky-followback-linux/
-        chmod +x bluesky-followback-linux/bluesky_followback
-        chmod +x bluesky-followback-linux/run.sh
-        cp README.md bluesky-followback-linux/
-        echo "Bluesky Followback Checker" > bluesky-followback-linux/INSTALL.txt
-        echo "" >> bluesky-followback-linux/INSTALL.txt
-        echo "Run: ./bluesky_followback or ./run.sh" >> bluesky-followback-linux/INSTALL.txt
-        echo "" >> bluesky-followback-linux/INSTALL.txt
-        echo "IMPORTANT: Use an App Password from Bluesky Settings!" >> bluesky-followback-linux/INSTALL.txt
-        tar -czf bluesky-followback-linux.tar.gz bluesky-followback-linux/
-    
-    - name: Upload Linux tarball
-      uses: actions/upload-artifact@v4
-      with:
-        name: bluesky-followback-linux-tar
-        path: bluesky-followback-linux.tar.gz
 
   build-macos:
     runs-on: macos-latest
@@ -142,136 +94,10 @@ jobs:
     
     - name: Build executable
       run: |
-        pyinstaller --onefile --console --name "bluesky_followback" \
-          --hidden-import=atproto \
-          --hidden-import=getpass \
-          --hidden-import=webbrowser \
-          --hidden-import=time \
-          --hidden-import=datetime \
-          bluesky_followback.py
+        pyinstaller --onefile --console --name "bluesky_followback" --hidden-import=atproto bluesky_followback.py
     
     - name: Upload macOS binary
       uses: actions/upload-artifact@v4
       with:
         name: bluesky-followback-macos
         path: dist/bluesky_followback
-    
-    - name: Create macOS package
-      run: |
-        mkdir bluesky-followback-macos
-        cp dist/bluesky_followback bluesky-followback-macos/
-        cp run.sh bluesky-followback-macos/
-        chmod +x bluesky-followback-macos/bluesky_followback
-        chmod +x bluesky-followback-macos/run.sh
-        cp README.md bluesky-followback-macos/
-        echo "Bluesky Followback Checker" > bluesky-followback-macos/INSTALL.txt
-        echo "" >> bluesky-followback-macos/INSTALL.txt
-        echo "Run: ./bluesky_followback or ./run.sh" >> bluesky-followback-macos/INSTALL.txt
-        echo "" >> bluesky-followback-macos/INSTALL.txt
-        echo "IMPORTANT: Use an App Password from Bluesky Settings!" >> bluesky-followback-macos/INSTALL.txt
-        zip -r bluesky-followback-macos.zip bluesky-followback-macos/
-    
-    - name: Upload macOS ZIP
-      uses: actions/upload-artifact@v4
-      with:
-        name: bluesky-followback-macos-zip
-        path: bluesky-followback-macos.zip
-
-  create-release:
-    needs: [build-windows, build-linux, build-macos]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
-    
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-    
-    - name: List all artifacts
-      run: |
-        ls -la artifacts/
-        find artifacts/ -type f -name "*.exe" -o -name "*.zip" -o -name "*.tar.gz" -o -name "bluesky_followback" | head -20
-    
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          artifacts/bluesky-followback-windows/bluesky_followback.exe
-          artifacts/bluesky-followback-windows-zip/bluesky-followback-windows.zip
-          artifacts/bluesky-followback-linux/bluesky_followback
-          artifacts/bluesky-followback-linux-tar/bluesky-followback-linux.tar.gz
-          artifacts/bluesky-followback-macos/bluesky_followback
-          artifacts/bluesky-followback-macos-zip/bluesky-followback-macos.zip
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-        name:  Bluesky Followback Checker ${{ github.ref_name }}
-        body: |
-          ## 🦋 Bluesky Followback Checker ${{ github.ref_name }}
-          
-          ### ✨ Features
-          - Check who doesn't follow you back on Bluesky
-          - Generate beautiful HTML reports with clickable links
-          - Separate verified domain accounts from regular accounts
-          - Cross-platform support (Windows, Linux, macOS)
-          - Automatic pagination for large followings
-          
-          ### 📥 Downloads
-          
-          #### Windows
-          - `bluesky_followback.exe` - Standalone executable
-          - `bluesky-followback-windows.zip` - Package with batch file and README
-          
-          #### Linux
-          - `bluesky_followback` - Standalone binary
-          - `bluesky-followback-linux.tar.gz` - Package with shell script and README
-          
-          #### macOS
-          - `bluesky_followback` - Standalone binary
-          - `bluesky-followback-macos.zip` - Package with shell script and README
-          
-          ### 🚀 Quick Start
-          1. Download the executable for your platform
-          2. Run it (double-click on Windows, `./bluesky_followback` on Linux/Mac)
-          3. Enter your Bluesky handle (e.g., `username.bsky.social`)
-          4. **Enter your App Password** (recommended for security)
-          5. Wait for analysis to complete
-          6. HTML report opens automatically in your browser
-          
-          ### 🔒 Security Note
-          > **⚠️ IMPORTANT: Always use an App Password!**
-          > 
-          > 1. Go to Bluesky Settings → App Passwords
-          > 2. Create a new app password
-          > 3. Use that password instead of your main password
-          > 
-          > This is safer and can be revoked anytime!
-          
-          ### 📋 Requirements
-          - Bluesky account
-          - Internet connection
-          - No Python installation needed!
-          
-          ### 🐛 Troubleshooting
-          **Login failed?**
-          - Verify your handle is correct
-          - Make sure you're using an App Password
-          - Check your internet connection
-          
-          **Windows security warning?**
-          - Click "More info" then "Run anyway"
-          - This is normal for new executables
-          
-          ### 📚 Documentation
-          Full documentation available in the [README](https://github.com/${{ github.repository }}#readme)
-          
-          ### 🙏 Support
-          - Report issues: [GitHub Issues](https://github.com/${{ github.repository }}/issues)
-          - Feature requests: Open a discussion
-          
-          ---
-          
-          **Thank you for using Bluesky Followback Checker!** 🦋
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

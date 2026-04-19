@@ -28,41 +28,6 @@ A Python script to identify who you follow on Bluesky but doesn't follow you bac
 
 **Windows only** - Download the ready-to-run executable:
 
-1. Go to the [Releases page](https://github.com/aquinordg/bluesky-followback-checker/releases)
-2. Download the `bluesky_followback.exe` file
-3. **Double-click** the downloaded file
-4. Follow the instructions in the terminal
-
-> ⚠️ **Note**: Windows may show a security warning. Click "Run anyway" - it's safe!
-
-**Quick download button:**
-
-[![Download bluesky_followback.exe](https://img.shields.io/badge/Download_.exe_(Windows)-2ea44f?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/aquinordg/bluesky-followback-checker/releases/latest/download/bluesky_followback.exe)
-
-### Option 2: For users who prefer the source code 🐍
-
-**Requires Python 3.7+ installed**
-
-#### Quick installation:
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/bluesky-followback-checker.git
-cd bluesky-followback-checker
-
-# Install the dependency
-pip install -r requirements.txt
-
-# Run
-python bluesky_followback.py
-```
-
-## 🚀 How to Use - Choose Your Option
-
-### Option 1: For regular users (NO Python required) 🎯
-
-**Windows only** - Download the ready-to-run executable:
-
 1. Go to the [Releases page](https://github.com/YOUR_USERNAME/bluesky-followback-checker/releases)
 2. Download the `bluesky_followback.exe` file
 3. **Double-click** the downloaded file
